@@ -15,6 +15,10 @@ export function stripPrefixes<T>(obj: T): T {
   return obj;
 }
 
+export function parseXMLString(xmlStr: string): Faktura {
+  return stripPrefixes(xml2js(xmlStr, { compact: true })) as Faktura;
+}
+
 export function parseXML(file: File): Promise<unknown> {
   return new Promise((resolve, reject): void => {
     const reader = new FileReader();
@@ -22,9 +26,7 @@ export function parseXML(file: File): Promise<unknown> {
     reader.onload = function (e: ProgressEvent<FileReader>): void {
       try {
         const xmlStr: string = e.target?.result as string;
-        const jsonDoc: Faktura = stripPrefixes(xml2js(xmlStr, { compact: true })) as Faktura;
-
-        resolve(jsonDoc);
+        resolve(parseXMLString(xmlStr));
       } catch (error) {
         reject(error);
       }
