@@ -5,6 +5,7 @@ import { generateFA1 } from './lib-public/FA1-generator';
 import { generateFA2 } from './lib-public/FA2-generator';
 import { generateFA3 } from './lib-public/FA3-generator';
 import { AdditionalDataTypes } from './lib-public/types/common.types';
+import { i18nReady } from './lib-public/i18n/i18n-init';
 import { parseXMLString } from './shared/XML-parser';
 
 type CliOptions = {
@@ -93,15 +94,7 @@ function createPdfFromXml(xml: unknown, additionalData: AdditionalDataTypes): TC
 }
 
 function pdfToBuffer(pdf: TCreatedPdf): Promise<Buffer> {
-  return new Promise((resolve, reject): void => {
-    try {
-      pdf.getBuffer((buffer: Uint8Array): void => {
-        resolve(Buffer.from(buffer));
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
+  return pdf.getBuffer().then((buffer: Uint8Array | Buffer): Buffer => Buffer.from(buffer));
 }
 
 async function main(): Promise<void> {
@@ -114,6 +107,8 @@ async function main(): Promise<void> {
       nrKSeF: options.nrKSeF,
       qrCode: options.qrCode,
     };
+
+    await i18nReady;
 
     const pdf = createPdfFromXml(xml, additionalData);
     const buffer = await pdfToBuffer(pdf);
